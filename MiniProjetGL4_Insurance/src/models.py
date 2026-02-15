@@ -22,7 +22,6 @@ from typing import Dict, List, Tuple, Any
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import SVC
 from sklearn.model_selection import StratifiedKFold, cross_val_score, GridSearchCV
 from sklearn.metrics import (
     accuracy_score, f1_score, roc_auc_score, 
@@ -33,8 +32,9 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.compose import ColumnTransformer
 
-# XGBoost
+# XGBoost and LightGBM
 from xgboost import XGBClassifier
+from lightgbm import LGBMClassifier
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -88,11 +88,13 @@ class ModelTrainer:
                 eval_metric='logloss',
                 n_jobs=-1
             ),
-            'Support Vector Machine': SVC(
-                kernel='rbf',
-                C=1.0,
-                probability=True,
-                random_state=42
+            'LightGBM': LGBMClassifier(
+                n_estimators=100,
+                learning_rate=0.1,
+                max_depth=5,
+                random_state=42,
+                verbose=-1,
+                n_jobs=-1
             )
         }
         return models
@@ -288,9 +290,10 @@ class ModelTrainer:
                 'n_neighbors': [3, 5, 7, 9],
                 'weights': ['uniform', 'distance']
             },
-            'Support Vector Machine': {
-                'C': [0.1, 1.0, 10.0],
-                'kernel': ['rbf', 'linear']
+            'LightGBM': {
+                'n_estimators': [50, 100, 150],
+                'max_depth': [3, 5, 7],
+                'learning_rate': [0.05, 0.1, 0.15]
             }
         }
         

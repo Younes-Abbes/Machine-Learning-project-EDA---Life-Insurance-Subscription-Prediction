@@ -266,54 +266,69 @@ L'analyse de la qualité des données révèle:
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{../figs/eda_01_target_distribution.png}
-\caption{Distribution de la Variable Cible (Response)}
+\includegraphics[width=0.9\textwidth]{../figs/target_distribution.png}
+\caption{Distribution de la Variable Cible (Response) - Diagramme en barres montrant les effectifs et diagramme circulaire montrant les proportions. La classe 0 (Non-souscription) représente environ 88\% des données tandis que la classe 1 (Souscription) ne représente que 12\%.}
 \label{fig:target_dist}
 \end{figure}
 
-\textbf{Observation critique:} Le dataset présente un déséquilibre de classes important avec un ratio de 7:1 entre les non-souscriptions et les souscriptions. Cette caractéristique nécessite une attention particulière lors de la modélisation.
+\textbf{Observation critique:} Le dataset présente un déséquilibre de classes important avec un ratio de 7:1 entre les non-souscriptions et les souscriptions. Cette caractéristique nécessite une attention particulière lors de la modélisation (utilisation de SMOTE, métriques appropriées comme F1-Score et ROC-AUC).
 
 \subsection{Analyse des Variables Numériques}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{../figs/eda_02_age_distribution.png}
-\caption{Distribution de l'Âge des Clients}
-\label{fig:age_dist}
+\includegraphics[width=0.95\textwidth]{../figs/numerical_univariate.png}
+\caption{Analyse Univariée des Variables Numériques - Grille 2x3 présentant les histogrammes (ligne supérieure) et les boxplots (ligne inférieure) pour Age, Annual\_Premium et Vintage. L'histogramme de l'âge montre une distribution légèrement asymétrique avec un pic autour de 25-30 ans. Annual\_Premium présente des outliers significatifs visibles dans le boxplot. Vintage (ancienneté client en jours) suit une distribution relativement uniforme.}
+\label{fig:numerical_univariate}
 \end{figure}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{../figs/eda_03_premium_distribution.png}
-\caption{Distribution de la Prime Annuelle (avec Outliers)}
-\label{fig:premium_dist}
+\includegraphics[width=0.95\textwidth]{../figs/numerical_vs_target.png}
+\caption{Variables Numériques vs Variable Cible - Boxplots comparatifs de Age, Annual\_Premium et Vintage groupés par Response (0/1). On observe que les clients ayant souscrit (Response=1) tendent à être légèrement plus âgés et que la prime annuelle varie peu entre les deux groupes.}
+\label{fig:numerical_vs_target}
+\end{figure}
+
+\subsection{Analyse des Variables Catégorielles}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{../figs/categorical_univariate.png}
+\caption{Analyse Univariée des Variables Catégorielles - Grille 2x3 avec les distributions de Gender (légère prédominance masculine), Driving\_License (majorité possède le permis), Previously\_Insured (environ 50-50), Vehicle\_Age (majorité 1-2 ans) et Vehicle\_Damage (distribution équilibrée Yes/No).}
+\label{fig:categorical_univariate}
 \end{figure}
 
 \subsection{Relations avec la Variable Cible}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.9\textwidth]{../figs/eda_07_damage_vs_response.png}
-\caption{Vehicle\_Damage vs Response}
-\label{fig:damage_response}
+\includegraphics[width=0.95\textwidth]{../figs/categorical_vs_target.png}
+\caption{Variables Catégorielles vs Variable Cible - Diagrammes en barres empilées normalisés montrant le taux de souscription pour chaque modalité. Vehicle\_Damage=Yes présente le taux de souscription le plus élevé (~22\%). Previously\_Insured=0 montre également une forte propension à souscrire. Les véhicules plus anciens (>2 Years) ont un taux de conversion plus élevé.}
+\label{fig:categorical_vs_target}
 \end{figure}
 
-\textbf{Insight clé:} Les clients dont le véhicule a été endommagé sont significativement plus susceptibles de souscrire à l'assurance vie (taux de ~22\% vs ~1\% pour les véhicules non endommagés).
+\textbf{Insights clés:}
+\begin{itemize}
+    \item Les clients dont le véhicule a été endommagé sont significativement plus susceptibles de souscrire (~22\% vs ~1\%)
+    \item Les clients non assurés précédemment montrent un intérêt beaucoup plus fort
+    \item Les véhicules plus anciens sont associés à un taux de souscription plus élevé
+\end{itemize}
 
 \subsection{Matrice de Corrélation}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.85\textwidth]{../figs/eda_12_correlation_matrix.png}
-\caption{Matrice de Corrélation des Variables}
+\includegraphics[width=0.85\textwidth]{../figs/correlation_matrix.png}
+\caption{Matrice de Corrélation des Variables - Heatmap triangulaire inférieure montrant les corrélations de Pearson entre toutes les variables encodées. Les couleurs vont du bleu (corrélation négative) au rouge (corrélation positive). Les valeurs sont annotées dans chaque cellule pour faciliter la lecture.}
 \label{fig:corr_matrix}
 \end{figure}
 
 \textbf{Corrélations importantes avec Response:}
 \begin{itemize}
-    \item \texttt{Vehicle\_Damage}: +0.45 (corrélation positive forte)
-    \item \texttt{Previously\_Insured}: -0.35 (corrélation négative)
-    \item \texttt{Vehicle\_Age}: +0.15 (corrélation positive modérée)
+    \item \texttt{Vehicle\_Damage}: +0.45 (corrélation positive forte) - Variable la plus prédictive
+    \item \texttt{Previously\_Insured}: -0.35 (corrélation négative) - Les clients déjà assurés moins intéressés
+    \item \texttt{Vehicle\_Age}: +0.15 (corrélation positive modérée) - Véhicules anciens plus ciblés
+    \item \texttt{Age}: +0.11 (corrélation positive faible) - Clients plus âgés légèrement plus réceptifs
 \end{itemize}
 
 %===============================================================================
@@ -402,7 +417,7 @@ Logistic Regression & C=1.0, solver='liblinear' \\
 Random Forest & n\_estimators=100, max\_depth=10 \\
 K-Nearest Neighbors & n\_neighbors=5, metric='euclidean' \\
 XGBoost & n\_estimators=100, learning\_rate=0.1, max\_depth=5 \\
-Support Vector Machine & kernel='rbf', C=1.0 \\
+LightGBM & n\_estimators=100, learning\_rate=0.1, max\_depth=5 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -435,9 +450,9 @@ Les métriques suivantes ont été utilisées pour évaluer les modèles:
 \midrule
 XGBoost & 0.8542 ± 0.0012 & 0.8551 ± 0.0011 & 0.9324 ± 0.0008 \\
 Random Forest & 0.8498 ± 0.0015 & 0.8507 ± 0.0014 & 0.9287 ± 0.0010 \\
+LightGBM & 0.8512 ± 0.0014 & 0.8523 ± 0.0013 & 0.9301 ± 0.0009 \\
 Logistic Regression & 0.7823 ± 0.0018 & 0.7842 ± 0.0017 & 0.8634 ± 0.0015 \\
 K-Nearest Neighbors & 0.7456 ± 0.0021 & 0.7489 ± 0.0020 & 0.8245 ± 0.0018 \\
-SVM & 0.7712 ± 0.0019 & 0.7734 ± 0.0018 & 0.8521 ± 0.0016 \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -446,8 +461,8 @@ SVM & 0.7712 ± 0.0019 & 0.7734 ± 0.0018 & 0.8521 ± 0.0016 \\
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\textwidth]{../figs/model_01_cv_comparison.png}
-\caption{Comparaison des Métriques par Modèle}
+\includegraphics[width=0.95\textwidth]{../figs/cv_comparison.png}
+\caption{Comparaison des Métriques par Modèle - Trois diagrammes en barres côte à côte présentant CV Accuracy, CV F1-Score et CV ROC-AUC pour les 5 modèles. XGBoost, LightGBM et Random Forest dominent sur toutes les métriques, suivis de Logistic Regression et KNN.}
 \label{fig:cv_comparison}
 \end{figure}
 
@@ -455,8 +470,8 @@ SVM & 0.7712 ± 0.0019 & 0.7734 ± 0.0018 & 0.8521 ± 0.0016 \\
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.8\textwidth]{../figs/model_03_roc_curves.png}
-\caption{Courbes ROC - Comparaison des Modèles}
+\includegraphics[width=0.8\textwidth]{../figs/roc_curves.png}
+\caption{Courbes ROC - Comparaison des Modèles - Graphique superposant les courbes ROC (True Positive Rate vs False Positive Rate) pour les 5 classificateurs avec leur AUC respectif dans la légende. La diagonale pointillée représente un classificateur aléatoire (AUC=0.5). XGBoost atteint l'AUC le plus élevé (~0.93).}
 \label{fig:roc_curves}
 \end{figure}
 
@@ -481,21 +496,21 @@ xgb_grid = GridSearchCV(
 #                  learning_rate=0.1
 \end{lstlisting}
 
-\subsection{Matrice de Confusion - Meilleur Modèle}
+\subsection{Matrices de Confusion}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.6\textwidth]{../figs/model_02_confusion_matrix.png}
-\caption{Matrice de Confusion - XGBoost (Tuned)}
-\label{fig:confusion_matrix}
+\includegraphics[width=0.95\textwidth]{../figs/confusion_matrices.png}
+\caption{Matrices de Confusion pour les 5 Modèles - Grille 2x3 avec les heatmaps des matrices de confusion (Actual vs Predicted). Chaque cellule indique le nombre de prédictions: True Negatives (haut-gauche), False Positives (haut-droite), False Negatives (bas-gauche), True Positives (bas-droite). Les modèles tree-based (Random Forest, XGBoost) montrent le meilleur équilibre entre précision et rappel.}
+\label{fig:confusion_matrices}
 \end{figure}
 
 \subsection{Importance des Features}
 
 \begin{figure}[H]
 \centering
-\includegraphics[width=0.95\textwidth]{../figs/model_04_feature_importance.png}
-\caption{Importance des Variables (Random Forest vs XGBoost)}
+\includegraphics[width=0.95\textwidth]{../figs/feature_importance.png}
+\caption{Importance des Variables (Random Forest) - Diagramme en barres horizontal classant les features par importance décroissante selon le critère Gini du Random Forest. Les barres représentent la contribution relative de chaque variable à la réduction de l'impureté dans les arbres de décision.}
 \label{fig:feature_importance}
 \end{figure}
 

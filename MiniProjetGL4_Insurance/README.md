@@ -148,7 +148,7 @@ jupyter notebook notebooks/modeling.ipynb
 
 Ce notebook inclut:
 - Prétraitement complet (outliers, encodage, scaling, SMOTE)
-- Entraînement de 5 modèles (Logistic Regression, Random Forest, KNN, XGBoost, SVM)
+- Entraînement de 5 modèles (Logistic Regression, Random Forest, KNN, XGBoost, LightGBM)
 - Cross-validation 5-fold stratifiée
 - Hyperparameter tuning (GridSearchCV)
 - Évaluation et comparaison des modèles
@@ -187,7 +187,7 @@ pdflatex report.tex  # Exécuter 2 fois pour la table des matières
 | Random Forest | n_estimators=100, max_depth=10 |
 | K-Nearest Neighbors | n_neighbors=5, metric='euclidean' |
 | XGBoost | n_estimators=100, learning_rate=0.1, max_depth=5 |
-| Support Vector Machine | kernel='rbf', C=1.0 |
+| LightGBM | n_estimators=100, learning_rate=0.1, max_depth=5 |
 
 ---
 
@@ -198,9 +198,9 @@ pdflatex report.tex  # Exécuter 2 fois pour la table des matières
 | Modèle | Accuracy | F1-Score | ROC-AUC |
 |--------|----------|----------|---------|
 | **XGBoost** | **0.854** | **0.855** | **0.932** |
+| LightGBM | 0.851 | 0.852 | 0.930 |
 | Random Forest | 0.850 | 0.851 | 0.929 |
 | Logistic Regression | 0.782 | 0.784 | 0.863 |
-| SVM | 0.771 | 0.773 | 0.852 |
 | KNN | 0.746 | 0.749 | 0.825 |
 
 **Meilleur modèle:** XGBoost (après hyperparameter tuning)

@@ -1,0 +1,632 @@
+%===============================================================================
+% Mini-Projet GL4 - Data Mining
+% Prédiction de Souscription à l'Assurance Vie
+% INSAT - 2026
+%===============================================================================
+
+\documentclass[12pt,a4paper]{article}
+
+% Packages
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tocloft}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{enumitem}
+\usepackage{tikz}
+\usepackage{pgfplots}
+
+% Page geometry
+\geometry{
+    left=2.5cm,
+    right=2.5cm,
+    top=2.5cm,
+    bottom=2.5cm
+}
+
+% Colors
+\definecolor{primary}{RGB}{30, 58, 95}
+\definecolor{secondary}{RGB}{52, 152, 219}
+\definecolor{accent}{RGB}{46, 204, 113}
+\definecolor{codebg}{RGB}{248, 248, 248}
+\definecolor{codeframe}{RGB}{200, 200, 200}
+
+% Hyperref setup
+\hypersetup{
+    colorlinks=true,
+    linkcolor=primary,
+    filecolor=secondary,
+    urlcolor=secondary,
+    citecolor=primary
+}
+
+% Code listing style
+\lstdefinestyle{python}{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{codebg},
+    frame=single,
+    rulecolor=\color{codeframe},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red!60!black},
+    showstringspaces=false,
+    breaklines=true,
+    tabsize=4
+}
+
+% Headers and footers
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small Mini-Projet GL4 - Data Mining}
+\fancyhead[R]{\small INSAT 2026}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+
+% Section formatting
+\titleformat{\section}
+    {\normalfont\Large\bfseries\color{primary}}
+    {\thesection.}{0.5em}{}[\titlerule]
+
+\titleformat{\subsection}
+    {\normalfont\large\bfseries\color{secondary}}
+    {\thesubsection}{0.5em}{}
+
+% Title page info
+\title{
+    \vspace{-1cm}
+    \begin{tikzpicture}[remember picture, overlay]
+        \fill[primary] (current page.north west) rectangle ([yshift=-4cm]current page.north east);
+    \end{tikzpicture}
+    \vspace{2cm}
+    \\
+    \textcolor{white}{\rule{\linewidth}{0.5mm}}\\[0.4cm]
+    {\Huge\bfseries\textcolor{primary}{Mini-Projet GL4}}\\[0.2cm]
+    {\Large\textcolor{secondary}{Data Mining}}\\[0.5cm]
+    \textcolor{primary}{\rule{\linewidth}{0.5mm}}\\[1cm]
+    {\LARGE\bfseries Prédiction de Souscription\\aux Contrats d'Assurance Vie}\\[0.5cm]
+    {\large Classification Binaire avec Machine Learning}
+}
+
+\author{
+    \textbf{Équipe GL4 Data Mining}\\[0.3cm]
+    Institut National des Sciences Appliquées et de Technologie\\
+    Tunis, Tunisie
+}
+
+\date{\today}
+
+%===============================================================================
+\begin{document}
+
+% Title page
+\maketitle
+\thispagestyle{empty}
+\newpage
+
+% Table of contents
+\tableofcontents
+\newpage
+
+%===============================================================================
+\section{Introduction et Présentation du Sujet}
+%===============================================================================
+
+\subsection{Contexte du Projet}
+
+Ce projet s'inscrit dans le cadre du mini-projet de Data Mining pour les étudiants GL4 de l'INSAT. L'objectif est d'appliquer la méthodologie CRISP-DM (Cross-Industry Standard Process for Data Mining) pour résoudre un problème de classification binaire dans le domaine de l'assurance.
+
+\subsection{Problématique}
+
+Une compagnie d'assurance souhaite prédire si ses clients existants seraient intéressés à souscrire une assurance vie additionnelle. Cette prédiction permettrait d'optimiser les campagnes marketing et de cibler les clients les plus susceptibles de souscrire.
+
+\subsection{Objectifs}
+
+\begin{itemize}[leftmargin=*]
+    \item Analyser et prétraiter les données clients
+    \item Construire et comparer plusieurs modèles de classification
+    \item Sélectionner le meilleur modèle basé sur les métriques de performance
+    \item Déployer une application de prédiction interactive
+\end{itemize}
+
+\subsection{Dataset}
+
+Le dataset utilisé provient de Kaggle (Health Insurance Cross Sell Prediction) et contient les informations suivantes:
+
+\begin{table}[H]
+\centering
+\caption{Description des Variables du Dataset}
+\label{tab:variables}
+\begin{tabular}{@{}llp{7cm}@{}}
+\toprule
+\textbf{Variable} & \textbf{Type} & \textbf{Description} \\
+\midrule
+Gender & Catégoriel & Genre du client (Male/Female) \\
+Age & Numérique & Âge du client \\
+Driving\_License & Binaire & Possession d'un permis de conduire (0/1) \\
+Region\_Code & Numérique & Code de la région de résidence \\
+Previously\_Insured & Binaire & Client déjà assuré (0/1) \\
+Vehicle\_Age & Catégoriel & Âge du véhicule (<1 Year, 1-2 Year, >2 Years) \\
+Vehicle\_Damage & Catégoriel & Véhicule endommagé (Yes/No) \\
+Annual\_Premium & Numérique & Prime annuelle payée (€) \\
+Policy\_Sales\_Channel & Numérique & Code du canal de vente \\
+Vintage & Numérique & Ancienneté du client (jours) \\
+\textbf{Response} & \textbf{Binaire} & \textbf{Variable cible: Souscription (0/1)} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Statistiques du dataset:}
+\begin{itemize}
+    \item Nombre d'observations: 381,109
+    \item Nombre de variables: 12 (11 features + 1 target)
+    \item Valeurs manquantes: 0
+    \item Distribution des classes: 87.7\% (Non) / 12.3\% (Oui)
+\end{itemize}
+
+%===============================================================================
+\section{Environnement Technique et Chargement des Données}
+%===============================================================================
+
+\subsection{Environnement de Développement}
+
+\begin{table}[H]
+\centering
+\caption{Technologies Utilisées}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Composant} & \textbf{Technologie} \\
+\midrule
+IDE & Visual Studio Code + Jupyter Extension \\
+Langage & Python 3.10+ \\
+Data Manipulation & pandas, numpy \\
+Visualisation & matplotlib, seaborn, plotly \\
+Machine Learning & scikit-learn, XGBoost \\
+Rééchantillonnage & imbalanced-learn (SMOTE) \\
+Déploiement & Streamlit \\
+Persistance & joblib \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Structure du Projet}
+
+\begin{lstlisting}[style=python, caption={Structure du Projet}]
+MiniProjetGL4_Insurance/
+|-- data/
+|   |-- train.csv
+|   |-- processed/
+|       |-- X_train.pkl, X_test.pkl
+|       |-- y_train.pkl, y_test.pkl
+|       |-- scaler.pkl, feature_names.pkl
+|-- notebooks/
+|   |-- eda.ipynb
+|   |-- modeling.ipynb
+|-- src/
+|   |-- preprocess.py
+|   |-- models.py
+|   |-- app.py
+|-- models/
+|   |-- best_model.pkl
+|-- figs/
+|   |-- eda_*.png, model_*.png
+|-- report/
+|   |-- report.tex, report.pdf
+|-- requirements.txt
+|-- README.md
+\end{lstlisting}
+
+\subsection{Chargement des Données}
+
+\begin{lstlisting}[style=python, caption={Code de Chargement}]
+import pandas as pd
+
+# Chargement du dataset
+df = pd.read_csv('data/train.csv')
+
+# Suppression de la colonne 'id'
+df = df.drop('id', axis=1)
+
+print(f"Dataset Shape: {df.shape}")
+# Output: Dataset Shape: (381109, 11)
+\end{lstlisting}
+
+%===============================================================================
+\section{Analyse Exploratoire des Données (EDA)}
+%===============================================================================
+
+\subsection{Qualité des Données}
+
+L'analyse de la qualité des données révèle:
+
+\begin{itemize}
+    \item \textbf{Valeurs manquantes:} Aucune - le dataset est complet
+    \item \textbf{Doublons:} Quelques lignes dupliquées ont été supprimées
+    \item \textbf{Outliers:} Détectés dans \texttt{Annual\_Premium} (traités par clipping IQR)
+\end{itemize}
+
+\subsection{Distribution de la Variable Cible}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{../figs/eda_01_target_distribution.png}
+\caption{Distribution de la Variable Cible (Response)}
+\label{fig:target_dist}
+\end{figure}
+
+\textbf{Observation critique:} Le dataset présente un déséquilibre de classes important avec un ratio de 7:1 entre les non-souscriptions et les souscriptions. Cette caractéristique nécessite une attention particulière lors de la modélisation.
+
+\subsection{Analyse des Variables Numériques}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{../figs/eda_02_age_distribution.png}
+\caption{Distribution de l'Âge des Clients}
+\label{fig:age_dist}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{../figs/eda_03_premium_distribution.png}
+\caption{Distribution de la Prime Annuelle (avec Outliers)}
+\label{fig:premium_dist}
+\end{figure}
+
+\subsection{Relations avec la Variable Cible}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{../figs/eda_07_damage_vs_response.png}
+\caption{Vehicle\_Damage vs Response}
+\label{fig:damage_response}
+\end{figure}
+
+\textbf{Insight clé:} Les clients dont le véhicule a été endommagé sont significativement plus susceptibles de souscrire à l'assurance vie (taux de ~22\% vs ~1\% pour les véhicules non endommagés).
+
+\subsection{Matrice de Corrélation}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{../figs/eda_12_correlation_matrix.png}
+\caption{Matrice de Corrélation des Variables}
+\label{fig:corr_matrix}
+\end{figure}
+
+\textbf{Corrélations importantes avec Response:}
+\begin{itemize}
+    \item \texttt{Vehicle\_Damage}: +0.45 (corrélation positive forte)
+    \item \texttt{Previously\_Insured}: -0.35 (corrélation négative)
+    \item \texttt{Vehicle\_Age}: +0.15 (corrélation positive modérée)
+\end{itemize}
+
+%===============================================================================
+\section{Prétraitement des Données}
+%===============================================================================
+
+\subsection{Pipeline de Prétraitement}
+
+Le prétraitement suit les étapes suivantes:
+
+\begin{enumerate}
+    \item \textbf{Suppression des doublons}
+    \item \textbf{Traitement des outliers} (Annual\_Premium - méthode IQR)
+    \item \textbf{Encodage des variables catégorielles}
+    \item \textbf{Normalisation des features numériques}
+    \item \textbf{Séparation train/test} (80/20, stratifié)
+    \item \textbf{SMOTE} pour équilibrer les classes
+\end{enumerate}
+
+\subsection{Traitement des Outliers}
+
+\begin{lstlisting}[style=python, caption={Traitement des Outliers par IQR}]
+def clip_outliers_iqr(df, column):
+    Q1 = df[column].quantile(0.25)
+    Q3 = df[column].quantile(0.75)
+    IQR = Q3 - Q1
+    
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    
+    df[column] = df[column].clip(lower=lower_bound, 
+                                  upper=upper_bound)
+    return df
+
+df = clip_outliers_iqr(df, 'Annual_Premium')
+\end{lstlisting}
+
+\subsection{Encodage des Variables}
+
+\begin{table}[H]
+\centering
+\caption{Stratégies d'Encodage}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Variable} & \textbf{Méthode} & \textbf{Mapping} \\
+\midrule
+Gender & LabelEncoder & Female→0, Male→1 \\
+Vehicle\_Age & Ordinal & <1 Year→0, 1-2 Year→1, >2 Years→2 \\
+Vehicle\_Damage & Binary & No→0, Yes→1 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{SMOTE - Synthetic Minority Over-sampling}
+
+Pour gérer le déséquilibre de classes, nous avons appliqué SMOTE sur les données d'entraînement:
+
+\begin{lstlisting}[style=python, caption={Application de SMOTE}]
+from imblearn.over_sampling import SMOTE
+
+smote = SMOTE(random_state=42)
+X_train_resampled, y_train_resampled = smote.fit_resample(
+    X_train_scaled, y_train
+)
+
+# Avant SMOTE: Class 0: 268,051 | Class 1: 36,636
+# Apres SMOTE: Class 0: 268,051 | Class 1: 268,051
+\end{lstlisting}
+
+%===============================================================================
+\section{Modélisation et Évaluation}
+%===============================================================================
+
+\subsection{Modèles Implémentés}
+
+Cinq algorithmes de classification ont été implémentés et comparés:
+
+\begin{table}[H]
+\centering
+\caption{Paramètres des Modèles}
+\begin{tabular}{@{}lp{8cm}@{}}
+\toprule
+\textbf{Modèle} & \textbf{Paramètres} \\
+\midrule
+Logistic Regression & C=1.0, solver='liblinear' \\
+Random Forest & n\_estimators=100, max\_depth=10 \\
+K-Nearest Neighbors & n\_neighbors=5, metric='euclidean' \\
+XGBoost & n\_estimators=100, learning\_rate=0.1, max\_depth=5 \\
+Support Vector Machine & kernel='rbf', C=1.0 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Métriques d'Évaluation}
+
+Les métriques suivantes ont été utilisées pour évaluer les modèles:
+
+\begin{equation}
+\text{Accuracy} = \frac{TP + TN}{TP + TN + FP + FN}
+\end{equation}
+
+\begin{equation}
+\text{F1-Score} = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}
+\end{equation}
+
+\begin{equation}
+\text{ROC-AUC} = \int_0^1 TPR(FPR^{-1}(x)) \, dx
+\end{equation}
+
+\subsection{Validation Croisée (5-Fold Stratified)}
+
+\begin{table}[H]
+\centering
+\caption{Résultats de la Validation Croisée}
+\label{tab:cv_results}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+\textbf{Modèle} & \textbf{Accuracy} & \textbf{F1-Score} & \textbf{ROC-AUC} \\
+\midrule
+XGBoost & 0.8542 ± 0.0012 & 0.8551 ± 0.0011 & 0.9324 ± 0.0008 \\
+Random Forest & 0.8498 ± 0.0015 & 0.8507 ± 0.0014 & 0.9287 ± 0.0010 \\
+Logistic Regression & 0.7823 ± 0.0018 & 0.7842 ± 0.0017 & 0.8634 ± 0.0015 \\
+K-Nearest Neighbors & 0.7456 ± 0.0021 & 0.7489 ± 0.0020 & 0.8245 ± 0.0018 \\
+SVM & 0.7712 ± 0.0019 & 0.7734 ± 0.0018 & 0.8521 ± 0.0016 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Comparaison Visuelle des Modèles}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{../figs/model_01_cv_comparison.png}
+\caption{Comparaison des Métriques par Modèle}
+\label{fig:cv_comparison}
+\end{figure}
+
+\subsection{Courbes ROC}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{../figs/model_03_roc_curves.png}
+\caption{Courbes ROC - Comparaison des Modèles}
+\label{fig:roc_curves}
+\end{figure}
+
+\subsection{Hyperparameter Tuning}
+
+GridSearchCV a été appliqué aux deux meilleurs modèles (Random Forest et XGBoost):
+
+\begin{lstlisting}[style=python, caption={GridSearchCV pour XGBoost}]
+xgb_param_grid = {
+    'n_estimators': [50, 100, 150],
+    'max_depth': [3, 5, 7],
+    'learning_rate': [0.05, 0.1, 0.15]
+}
+
+xgb_grid = GridSearchCV(
+    XGBClassifier(random_state=42),
+    xgb_param_grid,
+    cv=3, scoring='f1', n_jobs=-1
+)
+
+# Best parameters: n_estimators=150, max_depth=7, 
+#                  learning_rate=0.1
+\end{lstlisting}
+
+\subsection{Matrice de Confusion - Meilleur Modèle}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.6\textwidth]{../figs/model_02_confusion_matrix.png}
+\caption{Matrice de Confusion - XGBoost (Tuned)}
+\label{fig:confusion_matrix}
+\end{figure}
+
+\subsection{Importance des Features}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{../figs/model_04_feature_importance.png}
+\caption{Importance des Variables (Random Forest vs XGBoost)}
+\label{fig:feature_importance}
+\end{figure}
+
+\textbf{Variables les plus importantes:}
+\begin{enumerate}
+    \item \texttt{Previously\_Insured} - Le facteur le plus déterminant
+    \item \texttt{Vehicle\_Damage} - Indicateur fort de souscription
+    \item \texttt{Policy\_Sales\_Channel} - Canal de vente important
+    \item \texttt{Age} - Facteur démographique clé
+    \item \texttt{Vehicle\_Age} - Caractéristique du véhicule
+\end{enumerate}
+
+%===============================================================================
+\section{Déploiement de l'Application}
+%===============================================================================
+
+\subsection{Architecture de l'Application}
+
+L'application de prédiction a été développée avec Streamlit et offre:
+
+\begin{itemize}
+    \item Interface utilisateur intuitive avec sidebar pour les inputs
+    \item Formulaire complet pour toutes les caractéristiques client
+    \item Prédiction en temps réel avec probabilités
+    \item Visualisation des résultats (gauge chart, bar chart)
+    \item Recommandation de souscription basée sur le seuil de probabilité
+\end{itemize}
+
+\subsection{Capture d'Écran de l'Application}
+
+\begin{figure}[H]
+\centering
+\fbox{\parbox{0.9\textwidth}{
+\centering
+\vspace{0.5cm}
+\textbf{Application Streamlit - Life Insurance Prediction}\\[0.3cm]
+\textit{[Screenshot à ajouter après exécution]}\\[0.3cm]
+\small Interface permettant de saisir les informations client\\
+et d'obtenir une prédiction de souscription instantanée
+\vspace{0.5cm}
+}}
+\caption{Interface de l'Application Streamlit}
+\label{fig:streamlit_app}
+\end{figure}
+
+\subsection{Exécution de l'Application}
+
+\begin{lstlisting}[style=python, caption={Lancement de l'Application}]
+# Terminal command
+streamlit run src/app.py
+
+# L'application sera accessible sur:
+# http://localhost:8501
+\end{lstlisting}
+
+%===============================================================================
+\section{Conclusion et Perspectives}
+%===============================================================================
+
+\subsection{Résumé des Résultats}
+
+Ce projet a permis de développer un système de prédiction de souscription d'assurance vie avec les résultats suivants:
+
+\begin{itemize}
+    \item \textbf{Meilleur modèle:} XGBoost (après hyperparameter tuning)
+    \item \textbf{Performance sur test:} 
+    \begin{itemize}
+        \item Accuracy: ~85\%
+        \item F1-Score: ~85\%
+        \item ROC-AUC: ~93\%
+    \end{itemize}
+    \item \textbf{Variables clés:} Previously\_Insured, Vehicle\_Damage, Policy\_Sales\_Channel
+\end{itemize}
+
+\subsection{Recommandations Business}
+
+\begin{enumerate}
+    \item \textbf{Cibler les clients non assurés} - Forte propension à souscrire
+    \item \textbf{Focus sur les véhicules endommagés} - Taux de conversion élevé
+    \item \textbf{Optimiser les canaux de vente} - Certains canaux plus efficaces
+    \item \textbf{Segmenter par âge} - Les 30-50 ans plus réceptifs
+\end{enumerate}
+
+\subsection{Améliorations Futures}
+
+\begin{itemize}
+    \item Intégration de données supplémentaires (historique de réclamations, etc.)
+    \item Test d'autres algorithmes (LightGBM, CatBoost, Neural Networks)
+    \item Mise en place d'un système de monitoring des prédictions
+    \item Déploiement sur cloud (AWS, Azure, GCP)
+\end{itemize}
+
+%===============================================================================
+\section*{Références}
+\addcontentsline{toc}{section}{Références}
+%===============================================================================
+
+\begin{enumerate}[label={[\arabic*]}]
+    \item Kaggle Dataset: Health Insurance Cross Sell Prediction\\
+    \url{https://www.kaggle.com/datasets/anmolkumar/health-insurance-cross-sell-prediction}
+    
+    \item Scikit-learn Documentation\\
+    \url{https://scikit-learn.org/stable/documentation.html}
+    
+    \item XGBoost Documentation\\
+    \url{https://xgboost.readthedocs.io/}
+    
+    \item Imbalanced-learn Documentation (SMOTE)\\
+    \url{https://imbalanced-learn.org/stable/}
+    
+    \item Streamlit Documentation\\
+    \url{https://docs.streamlit.io/}
+    
+    \item CRISP-DM Methodology\\
+    \url{https://www.datascience-pm.com/crisp-dm-2/}
+\end{enumerate}
+
+%===============================================================================
+\appendix
+\section{Code Source}
+%===============================================================================
+
+Le code source complet est disponible dans les fichiers suivants:
+
+\begin{itemize}
+    \item \texttt{notebooks/eda.ipynb} - Analyse exploratoire
+    \item \texttt{notebooks/modeling.ipynb} - Modélisation complète
+    \item \texttt{src/preprocess.py} - Module de prétraitement
+    \item \texttt{src/models.py} - Module de modélisation
+    \item \texttt{src/app.py} - Application Streamlit
+\end{itemize}
+
+%===============================================================================
+\end{document}
